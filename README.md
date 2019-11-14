@@ -17,6 +17,8 @@ the "Deliver" stage of your Pipeline.
 
 Maven Commands:
 
+
+
 mvn --version
 
 Creating a Project
@@ -28,39 +30,71 @@ mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -Darchety
 Build the Project:
 mvn package
 
-Running Maven Tools
-Maven Phases
+Frequently used Commands
 
-Although hardly a comprehensive list, these are the most common default lifecycle phases executed.
+Here are some frequently used commands. If you are new to maven, you should try each command to get familiar with them:
 
-    validate: validate the project is correct and all necessary information is available
-    compile: compile the source code of the project
-    test: test the compiled source code using a suitable unit testing framework. These tests should not require the code be packaged or deployed
-    package: take the compiled code and package it in its distributable format, such as a JAR.
-    integration-test: process and deploy the package if necessary into an environment where integration tests can be run
-    verify: run any checks to verify the package is valid and meets quality criteria
-    install: install the package into the local repository, for use as a dependency in other projects locally
-    deploy: done in an integration or release environment, copies the final package to the remote repository for sharing with other developers and projects.
+Command 	Description 					
+mvn clean	Invoking clean phase of Clean LifeCycle		
 
-There are two other Maven lifecycles of note beyond the default list above. They are
+Task details:
+Removes the files from a project's working directory, that were generated at build-time. Alternatively we can execute the plugin:  mvn clean:clean That will do the same thing. 
 
-    clean: cleans up artifacts created by prior builds
+Command 	Description 
+mvn compile	Invoking compile phase of Default Lifecycle
 
-    site: generates site documentation for this project
+Task details:
+Compiles the source code of the projects. This command will do all pre compile phases which are validate, initialize, generate-sources, process-sources, generate-resources, process-resources, and finally compile. Remember execution falls from start to the phase we are invoking. That makes sense because for a phase to work it's prerequisite state must be achieved.
+One important point here: by default executing this phase will download external dependencies from remote repository. In fact any first plugin in execution sequence annotated with @requiresDependencyResolution will cause that (we will see that annotation in action when we learn how to write our own plugins)
+Again we can do the same thing as: mvn compiler:compile
 
-Phases are actually mapped to underlying goals. The specific goals executed per phase is dependant upon the packaging type of the project. For example, package executes jar:jar if the project type is a JAR, and war:war if the project type is - you guessed it - a WAR.
 
-An interesting thing to note is that phases and goals may be executed in sequence.
+Command 		Description 
+mvn clean package	Invoking clean phase of Clean Lifecycle followed by package phase of Default Lifecycle.
 
-    mvn clean dependency:copy-dependencies package
+Task details:
+Cleans the target directory first then compiles, runs unit tests and packages the compiled code and other files into a single file. The type of final file being created depends on what we have defined in <packaging> in our pom.xml. the valid packaging values are jar, war, ear and pom
+	
 
-This command will clean the project, copy dependencies, and package the project (executing all phases up to package, of course).
-Generating the Site
+Command 		Description 
+mvn clean install	Invoking clean phase of Clean Lifecycle followed by install phase of Default Lifecycle.
 
-    mvn site
+Task details:
+Cleans the previous build, then packages and then install the package into the local repository. Which by default is at User Home Directory/.m2/repository/. The local repository is a cache of the remote downloads(dependencies), and locally installed artifacts) which can be used as a dependency in other local projects. Our locally installed artifacts are actually temporary ones until we release that and put into some remote repository. 
 
-This phase generates a site based upon information on the project's pom. You can look at the documentation generated under target/site.
+Command 	Description 
+mvn test	Invoking clean phase of Clean Lifecycle followed by install phase of Default Lifecycle.
 
+Task details:
+Cleans the previous build, then packages and then install the package into the local repository. Which by default is at User Home Directory/.m2/repository/. The local repository is a cache of the remote downloads(dependencies), and locally installed artifacts) which can be used as a dependency in other local projects. Our locally installed artifacts are actually temporary ones until we release that and put into some remote repository.
+
+
+Command 	Description 
+mvn test	Invoking test phase of Default Lifecycle.
+
+Task details:
+Runs the unit test from compiled source and test source files. This is one step above package phase. If we are running some post test phase and want to skip tests then use skip optionObject.
+For example mvn install -Dmaven.test.skip=true
+
+
+Command 		Description 
+mvn dependency:list	Invoking list goal of dependency plugin (a tool, not bound to any phase by default)
+
+Task details:
+Lists all Maven dependencies from our project. Please use
+mvn help:describe -Dplugin=dependency
+to see other goals available with this plugin.
+From help:describe you can discover more goals of a plugin, then to know more about a particular goal (let's say 'get' goal of 'dependency' plugin), you can use:
+mvn help:describe -Dcmd= dependency:get
+
+
+Command 			Description 
+mvn help:effective-pom		Invoking effective-pom goal of help plugin(tool)
+
+Task details:
+Displays the effective POM as an XML for this build. This is also helpful to know what currently plugins (either bound to a phase or tool plugins) are available/installed. Please invoke  mvn help:describe -Dplugin= help to see all goals available with help plugin. 
+
+*************************
 
 more info about maven:
 
